@@ -1,0 +1,94 @@
+<html>
+    <head>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+<body style="background-color: #232d3f;">
+    <div  style="background-color: #005b41; border-color: #008170 !important;" class="container justify-content-center text-center border border-4 rounded-3 pt-3">
+        <div style="border-color: #232d3f !important;" class="border justify-content-center border-4 rounded-3 d-inline-block w-25 text-white">
+            <h1>The Quote Creation Application</h1>
+        </div>
+        <div class="text-end pb-3">
+            <a href="/logout"><button class="btn btn-dark">Logout</button></a>
+        </div>
+    </div>
+    <hr>
+    <div style="background-color:#232d3f; border-color: #008170 !important;" class="container justify-content-center text-center border border-4 rounded-3 p-3">
+        <table class="container-fluid text-white">
+            <thead>
+                <tr>
+                    <th>
+                        Quote
+                    </th>
+                    <th>
+                        Author
+                    </th>
+                    <th>
+                        Edit/Delete
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in data %}
+                <tr>
+                    <td class="text-white">
+                        {{item["text"]}}
+                    </td>
+                    <td class="text-white">
+                        <em>--</em>
+                        <em>{{item["author"]}}</em>
+                    </td>
+                    <td class="text-white">
+                        [
+                        <a href="/delete/{{item['_id']}}"><i style="color:#008170" class="material-icons">delete</i></a>
+                        <a href="/edit/{{item['_id']}}"><i style="color:#008170" class="material-icons">mode_edit</i></a>
+                        ]
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <hr />
+        <a href="/create"><button class="btn btn-dark">Create a quote</button></a>
+    </div>
+    <div class="container justify-content-center">
+        <h2 class="text-white text-center">Favorite Quotes</h2>
+        <table class="container-fluid text-white">
+            <thead class="text-center">
+                <tr>
+                    <th class=" w-50">
+                        Favorite Quote
+                    </th>
+                    <th class="w-50">
+                        Quote Author
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in favorite %}
+                <tr>
+                    <td>
+                        {{item["text"]}}
+                    </td>
+                    <td>
+                        {{item["author"]}}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+        <div class="container justify-content-center text-center text-white">
+            <hr />
+            Current User: {{user}}
+            <hr />
+            You have been here {{number_of_visits}} times!
+            <hr />
+            Session Id is{{session_id}}
+        </div>
+</div>
+</body>
+
+</html>

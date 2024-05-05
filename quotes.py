@@ -124,7 +124,7 @@ def get_register():
         return render_template("register.html")
 
 ##################
-# Get User Quotes
+# Get User and Public Quotes
 ##################
 
 @app.route("/", methods=["GET"])
@@ -162,7 +162,7 @@ def get_quotes():
                 item["_id"] = str(item["_id"])
                 item["object"] = ObjectId(item["_id"])
         #render the quotes page with the data retrieved from above
-        html = render_template("quotes.html", data=data, number_of_visits=number_of_visits, session_id=session_id, user=user, favorite=favorite)
+        html = render_template("quotes.html", data=data, public_quotes=public_quotes, number_of_visits=number_of_visits, session_id=session_id, user=user, favorite=favorite)
         response = make_response(html)
         response.set_cookie("number_of_visits", str(number_of_visits + 1))
         response.set_cookie("session_id", str(session_id))
@@ -217,10 +217,61 @@ def post_quotes():
         return redirect("/quotes")
 
 ##################
+# Comment User Quotes
+##################
+
+@app.route("/comment/<id>", methods=["GET"])
+def get_comments(id=None):
+        #get session id from the cookie
+        session_id = request.cookies.get("session_id", None)
+        #if the session id does not exist or there is none, redirect to login page
+        if not session_id:
+                    response = redirect("/login")
+                    return response
+        #checking valid quote id
+        if id:        
+                #open collection
+                quotes_collection = quotes_db.quotes_collection
+                #find quote by ObjectId
+                data = quotes_collection.find_one({"_id": ObjectId(id)})
+                #return json as string
+                data["id"] = str(data["_id"])
+                return render_template("/comments.html", data=data)
+        else:
+                print("Not a valid id")
+
+@app.route("/comment", methods=["POST"])
+def post_comment():
+        #get session id from the cookie
+        session_id = request.cookies.get("session_id", None)
+        #if the session id does not exist or there is none, redirect to login
+        if not session_id:
+                response = redirect("/login")
+                return response
+        #if the id does exist, open the session and quotes collection
+        id = request.form.get("_id", None)
+        if id:  
+                #open collection
+                quotes_collection = quotes_db.quotes_collection
+                #find comment in form
+                comment_to_add = request.form.get("comment","")
+                print(comment_to_add)
+                comment = {"$push":{"commentArray": comment_to_add}}
+                print(comment)
+                data = quotes_collection.update_one({"_id": ObjectId(id)}, comment)
+                if data.modified_count > 0:
+                        print("Quote updated successfully.")
+                        print(data)
+                else:
+                        print("Update unsuccessful.")
+        else:
+                print("Not a valid object id")
+        return redirect("/quotes")
+                
+##################
 # Edit User Quotes
 ##################
 
-#@app.route("/edit", methods=["GET"])
 @app.route("/edit/<id>", methods=["GET"])
 def get_edit(id=None):
         #get session id from the cookie
@@ -235,6 +286,9 @@ def get_edit(id=None):
                 quotes_collection = quotes_db.quotes_collection
                 #find quote by ObjectId
                 data = quotes_collection.find_one({"_id": ObjectId(id)})
+                #check for checkbox values of public and favorite 
+                data["public"] = "on" if data.get("public") else "off"
+                data["favorite"] = "on" if data.get("favorite") else "off"
                 #return json as string
                 data["id"] = str(data["_id"])
                 return render_template("/edit.html", data=data)
@@ -252,12 +306,15 @@ def post_edit():
         _id = request.form.get("_id", None)
         text = request.form.get("quote", "")
         author = request.form.get("author", "")
+        comment = request.form.get("comment", "")
+        public = request.form.get("public", "") == "on"
+        favorite = request.form.get("favorite", "") == "on"
         #if the object id exists
         if _id:
                 # Open collection
                 quotes_collection = quotes_db.quotes_collection
                 # Update the values associated with this particular ObjectId
-                values = {"$set": {"text": text, "author": author}}
+                values = {"$set": {"text": text, "author": author, "comment": comment, "public": public, "favorite": favorite}}
                 data = quotes_collection.update_one({"_id": ObjectId(_id)}, values)
                 if data.modified_count > 0:
                         print("Quote updated successfully.")

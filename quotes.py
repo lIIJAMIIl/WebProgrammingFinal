@@ -127,6 +127,50 @@ def get_register():
 # Get User Quotes
 ##################
 
+@app.route("/quotes", methods=["POST"])
+def post_search():
+        #get number of visits via cookie; cookies always strings so cast to int
+        number_of_visits = int(request.cookies.get("number_of_visits", "0"))
+        #request the user's session id from the cookie
+        session_id = request.cookies.get("session_id", None)
+        #if the session id does not exist, redirect to the login page
+        if not session_id:
+                response = redirect("/login")
+                return response
+        #open a session collection
+        session_collection = session_db.session_collection
+        #find and list session data
+        session_data = list(session_collection.find({"session_id": session_id}))
+        #if the session id does not exist in the db, logout user since they are not valid user
+        if len(session_data) == 0:
+                response = redirect("/logout")
+                return response
+        #assert that the session data exists before proceding
+        assert len(session_data) == 1
+        #set session data to the first record
+        session_data = session_data[0]
+        #getting session information from the session data variable
+        user = session_data.get("user", "unknown user")
+        #get substring to search for in db
+        search = request.form.get("search", "")
+        print("search: ")
+        print(search)
+        # open a quotes collection from the db
+        quotes_collection = quotes_db.quotes_collection
+        userData = list(quotes_collection.find({"owner": user, "text": {"$eq": search}}))
+        publicData = list(quotes_collection.find({"owner": {"$nin": [user]}, "public": True, "text": {"$eq": search}}))
+        favorite = list(quotes_collection.find({"favorite": True}))
+        #set item id and object id for each quote of the owner's and public quotes
+        for item in userData + publicData:
+                item["_id"] = str(item["_id"])
+                item["object"] = ObjectId(item["_id"])
+        #render the quotes page with the data retrieved from above
+        html = render_template("quotes.html", data=userData, public=publicData, number_of_visits=number_of_visits, session_id=session_id, user=user, favorite=favorite)
+        response = make_response(html)
+        response.set_cookie("number_of_visits", str(number_of_visits))
+        response.set_cookie("session_id", str(session_id))
+        return response
+
 @app.route("/", methods=["GET"])
 @app.route("/quotes", methods=["GET"]) 
 def get_quotes():
@@ -155,14 +199,14 @@ def get_quotes():
         # open a quotes collection from the db
         quotes_collection = quotes_db.quotes_collection
         data = list(quotes_collection.find({"owner": user}))
-        public_quotes = list(quotes_collection.find({"public": True}))
+        public_quotes = list(quotes_collection.find({"owner": {"$nin": [user]}, "public": True}))
         favorite = list(quotes_collection.find({"favorite": True}))
         #set item id and object id for each quote of the owner's and public quotes
         for item in data + public_quotes:
                 item["_id"] = str(item["_id"])
                 item["object"] = ObjectId(item["_id"])
         #render the quotes page with the data retrieved from above
-        html = render_template("quotes.html", data=data, number_of_visits=number_of_visits, session_id=session_id, user=user, favorite=favorite)
+        html = render_template("quotes.html", data=data, public=public_quotes, number_of_visits=number_of_visits, session_id=session_id, user=user, favorite=favorite)
         response = make_response(html)
         response.set_cookie("number_of_visits", str(number_of_visits + 1))
         response.set_cookie("session_id", str(session_id))

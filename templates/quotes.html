@@ -15,6 +15,13 @@
         </div>
     </div>
     <hr>
+    <div style="background-color:#232d3f; border-color: #008170 !important;" class="container justify-content-center text-center p-3">
+        <form action="/quotes" method="POST">
+            <input type="text" id="search" name="search" placeholder="Search quotes...">
+            <button type="submit" class="btn btn-dark">Search</button>
+        </form>
+    </div>
+
     <div style="background-color:#232d3f; border-color: #008170 !important;" class="container justify-content-center text-center border border-4 rounded-3 p-3">
         <table class="container-fluid text-white">
             <thead>
@@ -32,6 +39,23 @@
             </thead>
             <tbody>
                 {% for item in data %}
+                <tr>
+                    <td class="text-white">
+                        {{item["text"]}}
+                    </td>
+                    <td class="text-white">
+                        <em>--</em>
+                        <em>{{item["author"]}}</em>
+                    </td>
+                    <td class="text-white">
+                        [
+                        <a href="/delete/{{item['_id']}}"><i style="color:#008170" class="material-icons">delete</i></a>
+                        <a href="/edit/{{item['_id']}}"><i style="color:#008170" class="material-icons">mode_edit</i></a>
+                        ]
+                    </td>
+                </tr>
+                {% endfor %}
+                {% for item in public %}
                 <tr>
                     <td class="text-white">
                         {{item["text"]}}

@@ -77,12 +77,14 @@
         <hr />
         <a href="/create"><button class="btn btn-dark">Create a quote</button></a>
     </div>
+    <br>
     <div class="container justify-content-center">
         <h2 class="text-white text-center">Favorite Quotes</h2>
+        <br>
         <table class="container-fluid text-white">
             <thead class="text-center">
                 <tr>
-                    <th class=" w-50">
+                    <th class="w-50">
                         Favorite Quote
                     </th>
                     <th class="w-50">
@@ -90,10 +92,10 @@
                     </th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="text-center">
                 {% for item in favorite %}
                 <tr>
-                    <td>
+                    <td style="padding:10px">
                         {{item["text"]}}
                     </td>
                     <td>

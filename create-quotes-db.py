@@ -1,4 +1,4 @@
-# Creating a Mongita DB with Movie Info
+# Creating a Mongita DB with Quote Info
 import json
 from mongita import MongitaClientDisk
 

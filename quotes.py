@@ -14,6 +14,7 @@ client = MongitaClientDisk()
 quotes_db = client.quotes_db
 session_db = client.session_db
 user_db = client.user_db
+comments_db = client.comments_db
 
 import uuid
 
@@ -220,6 +221,7 @@ def post_quotes():
 # Comment User Quotes
 ##################
 
+#GET Comments and Display Quote with Comments
 @app.route("/comment/<id>", methods=["GET"])
 def get_comments(id=None):
         #get session id from the cookie
@@ -229,18 +231,38 @@ def get_comments(id=None):
                     response = redirect("/login")
                     return response
         #checking valid quote id
-        if id:        
-                #open collection
-                quotes_collection = quotes_db.quotes_collection
-                #find quote by ObjectId
+        if id:    
+                quotes_collection  = quotes_db.quotes_collection
                 data = quotes_collection.find_one({"_id": ObjectId(id)})
-                #return json as string
                 data["id"] = str(data["_id"])
-                return render_template("/comments.html", data=data)
+                #open collection
+                comments_collection = comments_db.comments_collection
+                #list comments
+                comments = list(comments_collection.find({"quote_id": id}))
+                return render_template("comments.html", data=data, comments=comments)
         else:
                 print("Not a valid id")
 
-@app.route("/comment", methods=["POST"])
+#GET Add Comments Page
+@app.route("/add-comment/<id>", methods=["GET"])
+def get_add_comments(id=None):
+         #get session id from the cookie
+        session_id = request.cookies.get("session_id", None)
+        #if the session id does not exist or there is none, redirect to login page
+        if not session_id:
+                    response = redirect("/login")
+                    return response
+        #checking valid quote id
+        if id:    
+                quotes_collection  = quotes_db.quotes_collection
+                data = quotes_collection.find_one({"_id": ObjectId(id)})
+                data["id"] = str(data["_id"])
+                return render_template("/add-comment.html", data=data)
+        else:
+                print("Not a valid id")
+
+#POST Add comment to quote
+@app.route("/add-comment", methods=["POST"])
 def post_comment():
         #get session id from the cookie
         session_id = request.cookies.get("session_id", None)
@@ -248,26 +270,43 @@ def post_comment():
         if not session_id:
                 response = redirect("/login")
                 return response
-        #if the id does exist, open the session and quotes collection
+        #open session collection db
+        session_collection = session_db.session_collection
+        #get session data from the db
+        session_data = list(session_collection.find({"session_id": session_id}))
+        #if the session data does not exist in the session collection db, redirect to logout since user does not exist
+        if len(session_data) == 0:
+                response = redirect("/logout")
+                return response
+        #assert the length of the session data field to be one entry
+        assert len(session_data) == 1
+        #set session data variable to the first index of session_data
+        session_data = session_data[0]
+        #get user information from the session data
+        user = session_data.get("user", "unknown user")
+        #get the id to use as input to the comments db
         id = request.form.get("_id", None)
+        #find comment in form
+        comment_to_add = request.form.get("comment","")
+        print("ID is: ", id)
         if id:  
-                #open collection
-                quotes_collection = quotes_db.quotes_collection
-                #find comment in form
-                comment_to_add = request.form.get("comment","")
-                print(comment_to_add)
-                comment = {"$push":{"commentArray": comment_to_add}}
-                print(comment)
-                data = quotes_collection.update_one({"_id": ObjectId(id)}, comment)
-                if data.modified_count > 0:
-                        print("Quote updated successfully.")
-                        print(data)
+                if comment_to_add != "":
+                        print("Comment to add is: ", comment_to_add)
+                        #open collection
+                        comments_collection = comments_db.comments_collection
+                        comment_data = {"quote_id": id, "owner": user, "comment": comment_to_add}
+                        comments_collection.insert_one(comment_data)
                 else:
-                        print("Update unsuccessful.")
+                        print("No comment to add")
         else:
                 print("Not a valid object id")
         return redirect("/quotes")
-                
+
+##################
+# Delete User Comments
+##################
+
+
 ##################
 # Edit User Quotes
 ##################

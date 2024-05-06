@@ -12,81 +12,62 @@
         </div>
     <hr>
     <div style="background-color:#232d3f; border-color: #008170 !important;" class="container justify-content-center text-center border border-4 rounded-3 p-3">
-        <form action="/comment" method="POST">
-            <input type="hidden" id="_id" name="_id" value="{{data["_id"]}}" />
-            <table class="container-fluid text-white">
-                <thead>
-                    <tr>
-                        <th>
-                            Quote
-                        </th>
-                        <th>
-                            Author
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="text-white">
-                            {{data["text"]}}
-                        </td>
-                        <td class="text-white">
-                            <em>--</em>
-                            <em>{{data["author"]}}</em>
-                        </td>
-                </tbody>
-            </table>
-            <hr style="border-color: #008170;"/>
-            <table class="container-fluid text-white">
-                <thead>
-                    <tr>
-                        <th>
-                            Comments for Current Quote
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if data.commentArray %}
-                    {% for comment in data.commentArray %}
-                        <tr>
-                            <td class="text-white">
-                                <em>{{ comment }}</em>
-                            </td>
-                            <td class="text-white">
-                                <!-- FIX DELETE METHOD -->
-                                [<a href="/delete/{{ data['_id'] }}/{{ comment['_id'] }}"><i style="color:#008170" class="material-icons">delete</i></a>]
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    {% else %}
-                    <tr>
-                        <td class="text-white">
-                            <em>No Comments</em>
-                        </td>
-                    </tr>
-                    {% endif %}
-            </tbody>
-            </table>
-            <hr style="border-color: #008170;"/>
-            <table>
+        <input type="hidden" id="_id" name="_id" value="{{data["_id"]}}" />
+        <table class="container-fluid text-white">
+            <thead>
+                <tr>
+                    <th>
+                        Quote
+                    </th>
+                    <th>
+                        Author
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
                 <tr>
                     <td class="text-white">
-                        Add Comment
+                        {{data["text"]}}
                     </td>
-                </tr>
+                    <td class="text-white">
+                        <em>--</em>
+                        <em>{{data["author"]}}</em>
+                    </td>
+            </tbody>
+        </table>
+        <hr style="border-color: #008170;"/>
+        <table class="container-fluid text-white">
+            <thead>
                 <tr>
-                    <td>
-                        <textarea type="text" id="comment" name="comment" placeholder="Enter Comment" cols="40" rows="2"></textarea>
-                    </td>
+                    <th>
+                        Comments for Current Quote
+                    </th>
                 </tr>
+            </thead>
+            <tbody>
+                {% if comments %}
+                {% for comment in comments %}
+                    <tr>
+                        <td class="text-white">
+                            <em>{{ comment["owner"] }}: {{ comment["comment"] }}</em>
+                        </td>
+                        <td class="text-white">
+                            <a href="/unset/{{data['_id']}}/{{loop.index0}}"><i style="color:#008170" class="material-icons">delete</i></a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
                 <tr>
-                    <td>
-                        <button type="submit" class="btn btn-dark">Submit New Comment</button>
+                    <td class="text-white">
+                        <em>No Comments</em>
                     </td>
                 </tr>
-            </table>
-        </form>
-        <hr />
+            {% endif %}
+        </tbody>
+        </table>
+        <hr style="border-color: #008170;"/>
+        <a href="/add-comment/{{data['_id']}}"><button class="btn btn-dark">Add a Comment to Quote</button></a>
+        <hr style="border-color: #008170;"/>
         <a href="/quotes"><button class="btn btn-dark">Return to Quotes Page</button></a>
     </div>
 </div>

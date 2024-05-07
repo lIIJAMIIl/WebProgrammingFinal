@@ -19,6 +19,10 @@
         <table class="container-fluid text-white">
             <thead>
                 <tr>
+                    <h3 class="text-white">User Quotes</h3>
+                </tr>
+                <hr style="border-color: #008170;"/>
+                <tr>
                     <th>
                         Quote
                     </th>
@@ -26,7 +30,7 @@
                         Author
                     </th>
                     <th>
-                        Edit/Delete
+                        Edit/Delete/View Comments
                     </th>
                 </tr>
             </thead>
@@ -44,19 +48,63 @@
                         [
                         <a href="/delete/{{item['_id']}}"><i style="color:#008170" class="material-icons">delete</i></a>
                         <a href="/edit/{{item['_id']}}"><i style="color:#008170" class="material-icons">mode_edit</i></a>
+                        {%if item.allow_comments == true%}
+                        <a href="/comment/{{item['_id']}}"><i style="color:#008170" class="material-icons">comment</i></a>
+                        {%endif%}
                         ]
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        <table class="container-fluid text-white">
+            <thead>
+                <tr>
+                    <h3 class="text-white">Public Quotes</h3>
+                </tr>
+                <hr style="border-color: #008170;"/>
+                <tr>
+                    <th>
+                        Public Quote
+                    </th>
+                    <th>
+                        Author
+                    </th>
+                    <th>
+                        Edit/Delete/View Comments
+                    </th>
+                </tr>
+            </thead>
+                {% for item in public_quotes %}
+                <tr>
+                    <td class="text-white">
+                        {{item["text"]}}
+                    </td>
+                    <td class="text-white">
+                        <em>--</em>
+                        <em>{{item["author"]}}</em>
+                    </td>
+                    <td class="text-white">
+                        [
+                        {% if item.owner == user %}
+                        <a href="/delete/{{item['_id']}}"><i style="color:#008170" class="material-icons">delete</i></a>
+                        <a href="/edit/{{item['_id']}}"><i style="color:#008170" class="material-icons">mode_edit</i></a>
+                        {%endif%}
+                        {% if item.allow_comments == true %}
+                        <a href="/comment/{{item['_id']}}"><i style="color:#008170" class="material-icons">comment</i></a>
+                        {%endif%}
+                        ]
+                    </td>
+                </tr>
+                {% endfor %}
+        </table>
         <hr />
         <a href="/create"><button class="btn btn-dark">Create a quote</button></a>
     </div>
-    <div class="container justify-content-center">
+    <div class="container">
         <h2 class="text-white text-center">Favorite Quotes</h2>
-        <table class="container-fluid text-white">
-            <thead class="text-center">
+        <table class="container-fluid text-white text-center">
+            <thead>
                 <tr>
                     <th class=" w-50">
                         Favorite Quote
@@ -68,14 +116,17 @@
             </thead>
             <tbody>
                 {% for item in favorite %}
-                <tr>
-                    <td>
-                        {{item["text"]}}
-                    </td>
-                    <td>
-                        {{item["author"]}}
-                    </td>
-                </tr>
+                    {% if item.owner == user %}
+                    <tr>
+                        <td>
+                            {{item["text"]}}
+                        </td>
+                        <td>
+                            <em>--</em>
+                            <em>{{item["author"]}}</em>
+                        </td>
+                    </tr>
+                    {% endif %}
                 {% endfor %}
             </tbody>
         </table>

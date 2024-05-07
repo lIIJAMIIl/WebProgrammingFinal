@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, make_response
+from flask import Flask, render_template, request, redirect, make_response, jsonify
 from mongita import MongitaClientDisk
 from bson import ObjectId
 from passwords import hash_pwd # (password) -> hashed_password, salt
@@ -73,7 +73,7 @@ def post_login():
         session_collection.delete_one({"session_id": session_id})
         session_data = {"session_id": session_id, "user": user}
         session_collection.insert_one(session_data)
-        response = redirect("/quotes")
+        response = redirect("/quotesVue")
         response.set_cookie("session_id", session_id)
         return response
 
@@ -82,7 +82,7 @@ def get_login():
         session_id = request.cookies.get("session_id", None)
         print("Pre-login session id is:", session_id)
         if session_id:
-                return redirect("/quotes")
+                return redirect("/quotesVue")
         return render_template("login.html")
 
 ##################
@@ -121,7 +121,7 @@ def get_register():
         session_id = request.cookies.get("session_id", None)
         print("Pre-login session id is:", session_id)
         if session_id:
-                return redirect("/quotes")
+                return redirect("/quotesVue")
         return render_template("register.html")
 
 ##################
@@ -173,45 +173,55 @@ def post_search():
         return response
 
 @app.route("/", methods=["GET"])
-@app.route("/quotes", methods=["GET"]) 
+@app.route("/quotesVue", methods=["GET"])
 def get_quotes():
-        #get number of visits via cookie; cookies always strings so cast to int
-        number_of_visits = int(request.cookies.get("number_of_visits", "0"))
-        #request the user's session id from the cookie
-        session_id = request.cookies.get("session_id", None)
-        #if the session id does not exist, redirect to the login page
-        if not session_id:
-                response = redirect("/login")
-                return response
-        #open a session collection
-        session_collection = session_db.session_collection
-        #find and list session data
-        session_data = list(session_collection.find({"session_id": session_id}))
-        #if the session id does not exist in the db, logout user since they are not valid user
-        if len(session_data) == 0:
-                response = redirect("/logout")
-                return response
-        #assert that the session data exists before proceding
-        assert len(session_data) == 1
-        #set session data to the first record
-        session_data = session_data[0]
-        #getting session information from the session data variable
-        user = session_data.get("user", "unknown user")
-        # open a quotes collection from the db
-        quotes_collection = quotes_db.quotes_collection
-        data = list(quotes_collection.find({"owner": user}))
-        public_quotes = list(quotes_collection.find({"owner": {"$nin": [user]}, "public": True}))
-        favorite = list(quotes_collection.find({"favorite": True}))
-        #set item id and object id for each quote of the owner's and public quotes
-        for item in data + public_quotes:
-                item["_id"] = str(item["_id"])
-                item["object"] = ObjectId(item["_id"])
-        #render the quotes page with the data retrieved from above
-        html = render_template("quotes.html", data=data, public_quotes=public_quotes, number_of_visits=number_of_visits, session_id=session_id, user=user, favorite=favorite)
-        response = make_response(html)
-        response.set_cookie("number_of_visits", str(number_of_visits + 1))
-        response.set_cookie("session_id", str(session_id))
-        return response
+    # Get number of visits via cookie; cookies are always strings so cast to int
+    number_of_visits = int(request.cookies.get("number_of_visits", "0"))
+    # Request the user's session id from the cookie
+    session_id = request.cookies.get("session_id", None)
+    # If the session id does not exist, redirect to the login page
+    if not session_id:
+        return jsonify({'error': 'Session ID not found'}), 401
+
+    # Open a session collection
+    session_collection = session_db.session_collection
+    # Find and list session data
+    session_data = list(session_collection.find({"session_id": session_id}))
+    # If the session id does not exist in the db, logout user since they are not valid user
+    if len(session_data) == 0:
+        return jsonify({'error': 'Session data not found'}), 401
+
+    # Assert that the session data exists before proceeding
+    assert len(session_data) == 1
+    # Set session data to the first record
+    session_data = session_data[0]
+    # Getting session information from the session data variable
+    user = session_data.get("user", "unknown user")
+
+    # Open a quotes collection from the db
+    quotes_collection = quotes_db.quotes_collection
+    data = list(quotes_collection.find({"owner": user}))
+    public_quotes = list(quotes_collection.find({"owner": {"$nin": [user]}, "public": True}))
+    favorite = list(quotes_collection.find({"favorite": True}))
+
+    # Set item id and object id for each quote of the owner's and public quotes and favorites
+    for item in data + public_quotes + favorite:
+        item["_id"] = str(item["_id"])
+        item["object"] = str(item["_id"])  # Assuming you don't need ObjectId in the JSON response
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        #return json if Vue is sending request
+        return jsonify({
+            "quotes": data,
+            "public_quotes": public_quotes,
+            "number_of_visits": number_of_visits,
+            "session_id": session_id,
+            "user": user,
+            "favorite": favorite
+        })
+    else:
+        # If it's a regular browser request, render HTML template
+        return render_template("quotesVue.html", data=data, public_quotes=public_quotes, number_of_visits=number_of_visits, session_id=session_id, user=user, favorite=favorite)
 
 ##################
 # Create Quotes

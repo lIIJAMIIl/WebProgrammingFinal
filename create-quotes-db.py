@@ -5,11 +5,13 @@ from mongita import MongitaClientDisk
 quotes_data = [
                 {
                         "text":"I enjoy front-end development",
-                        "author": "Josh Romisher"
+                        "author": "Josh Romisher",
+                        "public": True
                 },
                 {
                         "text": "I like walks and tug of war.",
-                        "author": "Rosie"
+                        "author": "Rosie",
+                        "public": True
                 }
 ]
 

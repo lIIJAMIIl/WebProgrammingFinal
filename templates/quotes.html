@@ -15,6 +15,13 @@
         </div>
     </div>
     <hr>
+    <div style="background-color:#232d3f; border-color: #008170 !important;" class="container justify-content-center text-center p-3">
+        <form action="/quotes" method="POST">
+            <input type="text" id="search" name="search" placeholder="Search quotes...">
+            <button type="submit" class="btn btn-dark">Search</button>
+        </form>
+    </div>
+
     <div style="background-color:#232d3f; border-color: #008170 !important;" class="container justify-content-center text-center border border-4 rounded-3 p-3">
         <table class="container-fluid text-white">
             <thead>
@@ -46,8 +53,25 @@
                     </td>
                     <td class="text-white">
                         [
-                        <a href="/delete/{{item['_id']}}"><i style="color:#008170" class="material-icons">delete</i></a>
                         <a href="/edit/{{item['_id']}}"><i style="color:#008170" class="material-icons">mode_edit</i></a>
+                        <a href="/delete/{{item['_id']}}"><i style="color:#008170" class="material-icons">delete</i></a>
+                        ]
+                    </td>
+                </tr>
+                {% endfor %}
+                {% for item in public %}
+                <tr>
+                    <td class="text-white">
+                        {{item["text"]}}
+                    </td>
+                    <td class="text-white">
+                        <em>--</em>
+                        <em>{{item["author"]}}</em>
+                    </td>
+                    <td class="text-white">
+                        [
+                        <a href="/edit/{{item['_id']}}"><i style="color:#008170" class="material-icons">mode_edit</i></a>
+                        <a href="/delete/{{item['_id']}}"><i style="color:#008170" class="material-icons">delete</i></a>
                         {%if item.allow_comments == true%}
                         <a href="/comment/{{item['_id']}}"><i style="color:#008170" class="material-icons">comment</i></a>
                         {%endif%}
@@ -101,12 +125,14 @@
         <hr />
         <a href="/create"><button class="btn btn-dark">Create a quote</button></a>
     </div>
-    <div class="container">
+    <br>
+    <div class="container justify-content-center">
         <h2 class="text-white text-center">Favorite Quotes</h2>
-        <table class="container-fluid text-white text-center">
-            <thead>
+        <br>
+        <table class="container-fluid text-white">
+            <thead class="text-center">
                 <tr>
-                    <th class=" w-50">
+                    <th class="w-50">
                         Favorite Quote
                     </th>
                     <th class="w-50">
@@ -114,11 +140,11 @@
                     </th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="text-center">
                 {% for item in favorite %}
                     {% if item.owner == user %}
                     <tr>
-                        <td>
+                        <td style="padding:10px">
                             {{item["text"]}}
                         </td>
                         <td>

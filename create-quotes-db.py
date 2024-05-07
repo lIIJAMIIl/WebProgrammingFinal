@@ -1,17 +1,21 @@
 # Creating a Mongita DB with Quote Info
 import json
 from mongita import MongitaClientDisk
+from datetime import date
+
 
 quotes_data = [
                 {
                         "text":"I enjoy front-end development",
                         "author": "Josh Romisher",
-                        "public": True
+                        "public": True,
+                        "date": str(date.today())
                 },
                 {
                         "text": "I like walks and tug of war.",
                         "author": "Rosie",
-                        "public": True
+                        "public": True,
+                        "date": str(date.today())
                 }
 ]
 

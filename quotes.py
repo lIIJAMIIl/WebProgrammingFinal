@@ -209,11 +209,12 @@ def post_quotes():
         author = request.form.get("author", "")
         public = request.form.get("public", "") == "on"
         favorite = request.form.get("favorite", "") == "on"
+        allow_comments = request.form.get("allow_comments", "") == "on"
         if text != "" and author != "":
                 #opening quotes db
                 quotes_collection = quotes_db.quotes_collection
                 #inserting quote into the quotes db
-                quotes_data = {"owner": user, "text": text, "author": author, "public": public, "favorite": favorite}
+                quotes_data = {"owner": user, "text": text, "author": author, "public": public, "favorite": favorite, "allow_comments": allow_comments}
                 quotes_collection.insert_one(quotes_data)
         return redirect("/quotes")
 

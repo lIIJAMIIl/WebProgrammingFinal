@@ -48,7 +48,9 @@
                         [
                         <a href="/delete/{{item['_id']}}"><i style="color:#008170" class="material-icons">delete</i></a>
                         <a href="/edit/{{item['_id']}}"><i style="color:#008170" class="material-icons">mode_edit</i></a>
+                        {%if item.allow_comments == true%}
                         <a href="/comment/{{item['_id']}}"><i style="color:#008170" class="material-icons">comment</i></a>
+                        {%endif%}
                         ]
                     </td>
                 </tr>
@@ -88,7 +90,9 @@
                         <a href="/delete/{{item['_id']}}"><i style="color:#008170" class="material-icons">delete</i></a>
                         <a href="/edit/{{item['_id']}}"><i style="color:#008170" class="material-icons">mode_edit</i></a>
                         {%endif%}
+                        {% if item.allow_comments == true %}
                         <a href="/comment/{{item['_id']}}"><i style="color:#008170" class="material-icons">comment</i></a>
+                        {%endif%}
                         ]
                     </td>
                 </tr>

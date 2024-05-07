@@ -31,22 +31,31 @@
                         </tr>
                         <tr>
                             <td>
+                                <label style="display: block;" for="comment">Comment</label>
+                            </td>
+                            <td>
+                                <input style="display: block;" type="text" id="comment" name="comment" placeholder="Comment"
+                                    value="{{data["comment"]}}"/> 
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
                                 <label style="display: inline-block;" for="public">Make Quote Public?</label>
                             </td>
                             <td>
-                                <input type="checkbox" id="public" name="public" />
+                                <input type="checkbox" id="public" name="public" {% if data.public == "on" %}checked{% endif %}/>
                             </td>
                             <td>
                                 <label style="display: inline-block;" for="favorite">Favorite Quote?</label>
                             </td>
                             <td>
-                                <input type="checkbox" id="favorite" name="favorite" />
+                                <input type="checkbox" id="favorite" name="favorite" {% if data.favorite == "on" %} checked {% endif %}/>
                             </td>
                         </tr>
                         </table>
                         <button type="submit" class="btn btn-dark">Submit</button>
-                        <a href="/"><button class="btn btn-dark">Cancel</button></a>
                     </form>
+                    <a href="/"><button class="btn btn-dark">Cancel</button></a>
                 </div>
             </div>
     </div>

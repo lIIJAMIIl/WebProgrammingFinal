@@ -37,6 +37,9 @@
                         Author
                     </th>
                     <th>
+                        Date
+                    </th>
+                    <th>
                         Edit/Delete/View Comments
                     </th>
                 </tr>
@@ -52,29 +55,12 @@
                         <em>{{item["author"]}}</em>
                     </td>
                     <td class="text-white">
-                        [
-                        <a href="/edit/{{item['_id']}}"><i style="color:#008170" class="material-icons">mode_edit</i></a>
-                        <a href="/delete/{{item['_id']}}"><i style="color:#008170" class="material-icons">delete</i></a>
-                        ]
-                    </td>
-                </tr>
-                {% endfor %}
-                {% for item in public %}
-                <tr>
-                    <td class="text-white">
-                        {{item["text"]}}
-                    </td>
-                    <td class="text-white">
-                        <em>--</em>
-                        <em>{{item["author"]}}</em>
+                        {{item["date"]}}
                     </td>
                     <td class="text-white">
                         [
                         <a href="/edit/{{item['_id']}}"><i style="color:#008170" class="material-icons">mode_edit</i></a>
                         <a href="/delete/{{item['_id']}}"><i style="color:#008170" class="material-icons">delete</i></a>
-                        {%if item.allow_comments == true%}
-                        <a href="/comment/{{item['_id']}}"><i style="color:#008170" class="material-icons">comment</i></a>
-                        {%endif%}
                         ]
                     </td>
                 </tr>
@@ -95,6 +81,9 @@
                         Author
                     </th>
                     <th>
+                        Date
+                    </th>
+                    <th>
                         Edit/Delete/View Comments
                     </th>
                 </tr>
@@ -107,6 +96,9 @@
                     <td class="text-white">
                         <em>--</em>
                         <em>{{item["author"]}}</em>
+                    </td>
+                    <td class="text-white">
+                        {{item["date"]}}
                     </td>
                     <td class="text-white">
                         [

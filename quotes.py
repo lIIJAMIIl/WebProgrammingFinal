@@ -3,6 +3,7 @@ from mongita import MongitaClientDisk
 from bson import ObjectId
 from passwords import hash_pwd # (password) -> hashed_password, salt
 from passwords import check_pwd # (password, saved_hash_password, salt)
+from datetime import date
 
 app = Flask(__name__)
 
@@ -254,11 +255,12 @@ def post_quotes():
         public = request.form.get("public", "") == "on"
         favorite = request.form.get("favorite", "") == "on"
         allow_comments = request.form.get("allow_comments", "") == "on"
+        quoteDate = str(date.today())
         if text != "" and author != "":
                 #opening quotes db
                 quotes_collection = quotes_db.quotes_collection
                 #inserting quote into the quotes db
-                quotes_data = {"owner": user, "text": text, "author": author, "public": public, "favorite": favorite, "allow_comments": allow_comments}
+                quotes_data = {"owner": user, "text": text, "author": author, "public": public, "favorite": favorite, "allow_comments": allow_comments, "date": quoteDate}
                 quotes_collection.insert_one(quotes_data)
         return redirect("/quotes")
 

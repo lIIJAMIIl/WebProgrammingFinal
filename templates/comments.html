@@ -36,11 +36,15 @@
             </tbody>
         </table>
         <hr style="border-color: #008170;"/>
+        <h3 class="text-center text-white">Comments for Current Quote</h3>
         <table class="container-fluid text-white">
             <thead>
                 <tr>
                     <th>
-                        Comments for Current Quote
+                        Comment Owner
+                    </th>
+                    <th>
+                        Comment
                     </th>
                 </tr>
             </thead>
@@ -49,10 +53,15 @@
                 {% for comment in comments %}
                     <tr>
                         <td class="text-white">
-                            <em>{{ comment["owner"] }}: {{ comment["comment"] }}</em>
+                            <em>{{ comment["owner"] }}:</em>
+                        </td>
+                        <td>
+                            {{ comment["comment"] }}
                         </td>
                         <td class="text-white">
-                            <a href="/unset/{{data['_id']}}/{{loop.index0}}"><i style="color:#008170" class="material-icons">delete</i></a>
+                            {% if comment["owner"] == user or quote_owner == user %}
+                            <a href="/delete-comment/{{comment['_id']}}"><i style="color:#008170" class="material-icons">delete</i></a>
+                            {%endif%}
                         </td>
                     </tr>
                 {% endfor %}

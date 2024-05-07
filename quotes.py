@@ -230,16 +230,31 @@ def get_comments(id=None):
         if not session_id:
                     response = redirect("/login")
                     return response
+        #open session collection db
+        session_collection = session_db.session_collection
+        #get session data from the db
+        session_data = list(session_collection.find({"session_id": session_id}))
+        #if the session data does not exist in the session collection db, redirect to logout since user does not exist
+        if len(session_data) == 0:
+                response = redirect("/logout")
+                return response
+        #assert the length of the session data field to be one entry
+        assert len(session_data) == 1
+        #set session data variable to the first index of session_data
+        session_data = session_data[0]
+        #get user information from the session data
+        user = session_data.get("user", "unknown user")
         #checking valid quote id
         if id:    
                 quotes_collection  = quotes_db.quotes_collection
                 data = quotes_collection.find_one({"_id": ObjectId(id)})
+                quote_owner = data["owner"]
                 data["id"] = str(data["_id"])
                 #open collection
                 comments_collection = comments_db.comments_collection
                 #list comments
-                comments = list(comments_collection.find({"quote_id": id}))
-                return render_template("comments.html", data=data, comments=comments)
+                comments = list(comments_collection.find({"quote_id": ObjectId(id)}))
+                return render_template("comments.html", data=data, comments=comments, user=user, quote_owner=quote_owner)
         else:
                 print("Not a valid id")
 
@@ -254,7 +269,7 @@ def get_add_comments(id=None):
                     return response
         #checking valid quote id
         if id:    
-                quotes_collection  = quotes_db.quotes_collection
+                quotes_collection = quotes_db.quotes_collection
                 data = quotes_collection.find_one({"_id": ObjectId(id)})
                 data["id"] = str(data["_id"])
                 return render_template("/add-comment.html", data=data)
@@ -288,13 +303,12 @@ def post_comment():
         id = request.form.get("_id", None)
         #find comment in form
         comment_to_add = request.form.get("comment","")
-        print("ID is: ", id)
         if id:  
                 if comment_to_add != "":
                         print("Comment to add is: ", comment_to_add)
                         #open collection
                         comments_collection = comments_db.comments_collection
-                        comment_data = {"quote_id": id, "owner": user, "comment": comment_to_add}
+                        comment_data = {"quote_id": ObjectId(id), "owner": user, "comment": comment_to_add}
                         comments_collection.insert_one(comment_data)
                 else:
                         print("No comment to add")
@@ -306,7 +320,34 @@ def post_comment():
 # Delete User Comments
 ##################
 
+@app.route("/delete-comment", methods=["GET"])
+@app.route("/delete-comment/<comment_id>", methods=["GET"])
+def get_delete_comment(comment_id=None):  
+        #get session id from cookie
+        session_id = request.cookies.get("session_id", None)
+        #if the session id doesnt exist, redirect to login
+        if not session_id:
+                return redirect("/login")
+        #if the comment id is valid
+        if comment_id:
+                #open comments collection
+                comments_collection = comments_db.comments_collection
+                #find the comment associated with the id
+                comment = comments_collection.find_one({"_id": ObjectId(comment_id)})
+                #if the comment exists
+                if comment:      
+                        #allow deletion, check for owner or comment creator is done in above get_comment method
+                        comments_collection.delete_one({"_id": ObjectId(comment_id)})
+                        print("Comment deleted successfully")
+                else:
+                       #otherwise comment does not exist
+                       print("Comment not found") 
+        else:
+                #othewise the request is not valid
+                print("Invalid request")
 
+        return redirect("/quotes")
+        
 ##################
 # Edit User Quotes
 ##################

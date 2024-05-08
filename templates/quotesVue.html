@@ -101,7 +101,7 @@
             </tr>
             </thead>
             <tbody>
-            <div v-for="quote in publicData" :key="quote._id">
+            <div v-for="quote in public_quotes" :key="quote._id">
                 <tr>
                     <td class="text-white">
                         ${ quote.text }
@@ -176,12 +176,12 @@
     data() {
         return {
             user: '',
-            numVisits: 0,
             quotes: [],
             quote: {},
-            public_data: [], 
+            public_quotes: [], 
             number_of_visits: 0, 
-            session_id: '' 
+            session_id: '',
+            favorite: '' 
         }
     },
     mounted() {
@@ -189,14 +189,11 @@
         axios.get('/quotesVue')
         .then( response => {
             console.log("API response: ", response);
-            this.quotes = response.data.quotes;
-            this.publicData = response.data.public_quotes;
-            this.number_of_visits = response.data.number_of_visits;
-            this.session_id = response.data.session_id;
-            this.user = response.data.user;
-            if (this.quotes.length > 0) {
-                this.quote = this.quotes[0];
-            }
+            this.quotes = response.response_data;
+            this.public_quotes = response.response_data;
+            this.number_of_visits = response.response_data;
+            this.session_id = response.response_data;
+            this.user = response.response_data;
         })
         .catch(error => {
             console.error('Error fetching quotes: ', error);
